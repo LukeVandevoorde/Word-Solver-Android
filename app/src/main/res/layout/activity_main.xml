@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="18sp"
+            android:textColor="@color/colorPrimaryDark"
+            android:id="@+id/choose_img_btn"
+            android:text="Choose image..."
+            android:onClick="chooseImage"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="18sp"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="Go"
+            android:id="@+id/find_word"
+            android:onClick="solveWord"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:scaleY="10"
+            android:indeterminate="false"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:id="@+id/progress_bar"/>
+
+        <TextView
+            android:id="@+id/word_display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/progress_bar"
+            android:paddingTop="12dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:textAlignment="center"
+            android:background="#00000000"
+            android:textSize="24sp"
+            android:text="Progress"/>
+    </RelativeLayout>
+
+    <!--<Spinner-->
+        <!--android:id="@+id/best_word_spinner"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content">-->
+        <!--<string-array android:name="best_words">-->
+            <!--<item>"Best words will appear here"</item>-->
+        <!--</string-array>-->
+    <!--</Spinner>-->
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="abcdef"
+        android:id="@+id/available_letters"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Parsed board will appear here"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:id="@+id/board_display"
+        android:fontFamily="monospace"/>
+</LinearLayout>

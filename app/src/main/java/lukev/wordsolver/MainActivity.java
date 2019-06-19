@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.FileObserver;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -13,12 +14,13 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.abangfadli.shotwatch.ScreenshotData;
+import com.abangfadli.shotwatch.ShotWatch;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -35,43 +38,37 @@ import solver.Letter;
 import solver.StringTools;
 import solver.Word;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int READ_REQUEST_CODE = 42;
-    private FileObserver screenShotObserver;
     private Thread solveThread;
     private Thread requestThread;
     private Board boardToSolve;
+    private final String SCREENSHOT_PATH = Environment.getExternalStorageDirectory()
+            + File.separator + Environment.DIRECTORY_PICTURES
+            + File.separator + "Screenshots" + File.separator;
+    private final Uri SCREENSHOT_URI = new Uri.Builder().appendPath(SCREENSHOT_PATH).build();
+    private ScreenShotObserver screenShotObserver;
+
+    private ShotWatch shotWatch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String path = Environment.getExternalStorageDirectory()
-                + File.separator + Environment.DIRECTORY_PICTURES
-                + File.separator + "Screenshots" + File.separator;
-        Log.i("Screenshot path", path);
-
-        screenShotObserver = new FileObserver(path, FileObserver.CREATE) {
-            @Override
-            public void onEvent(int event, String path) {
-                Log.i("Event Fired", event + "############################## " + path);
+        requestPermissions(new String[] {READ_EXTERNAL_STORAGE}, 1);
+        ShotWatch.Listener listener = new ShotWatch.Listener() {
+            public void onScreenShotTaken(ScreenshotData data) {
+                Log.i("WORDSOLVER", "##################$$$$$$$$$$$$$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%%%%%%%^^^^^^^^^^^^^^^^^^^^^^^^^^ SCREENSHOT DETECTED");
+                parseUri(Uri.parse(data.getPath()));
             }
         };
 
-        screenShotObserver.startWatching();
-
-
-//        Log.i("Picture Directory", Environment.DIRECTORY_DCIM);
-//
-//        File[] directories = new File(Environment.getRootDirectory().getAbsolutePath() + "/media").listFiles();
-//
-//        for (File f: directories) {
-//            Log.i("picture subdir", f.getAbsolutePath());
-//        }
-
-//        Spinner spinner = findViewById(R.id.best_word_display);
+        shotWatch = new ShotWatch(getContentResolver(), listener);
+        shotWatch.register();
 
         new Thread(new Runnable() {
             @Override
@@ -84,36 +81,16 @@ public class MainActivity extends AppCompatActivity {
         solveThread = null;
     }
 
-    public void requestWord(View v) {
-        if (requestThread == null || !requestThread.isAlive()) {
-            final EditText letterEditText = findViewById(R.id.available_letters);
-            final String letters = letterEditText.getText().toString().toLowerCase();
+    @Override
+    public void onResume() {
+        super.onResume();
+//        getContentResolver().registerContentObserver(SCREENSHOT_URI, false, screenShotObserver);
+    }
 
-            requestThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    Log.i("WS", "Attempting to connect");
-                    try (
-//                            Socket server = new Socket("192.168.1.130", 7);
-//                            Socket server = new Socket ("c-67-164-99-119.hsd1.ca.comcast.net", 7);
-                            Socket server = new Socket("67.164.99.119", 6000);
-                            WSClientUploader clientUploader = new WSClientUploader(server);
-                    ) {
-                        Log.i("WS", "Connected");
-                        Word bestWord = clientUploader.requestBestWords(boardToSolve, letters)[0];
-                        displayWord(bestWord.word() + ", " + bestWord.score());
-                        displayBoard(boardToSolve, bestWord);
-                    } catch (UnknownHostException e) {
-                        Log.i("WS", Log.getStackTraceString(e));
-                    } catch (IOException e) {
-                        displayWord("Failed to get word from server");
-                        Log.i("WS", Log.getStackTraceString(e));
-                    }
-                }});
-
-            requestThread.start();
-        }
+    @Override
+    public void onPause() {
+        super.onPause();
+//        getContentResolver().unregisterContentObserver(screenShotObserver);
     }
 
     public void solveWord(View v) {
@@ -183,24 +160,6 @@ public class MainActivity extends AppCompatActivity {
                 tv.setText(span);
             }
         });
-    }
-
-    public void displayBestWords(final Board.WordRank words) {
-
-        final ArrayList<String> bestWordList = new ArrayList<>();
-        for (int i = 0; i < words.getWords().length; i++) {
-            bestWordList.add(words.getWords()[i].word());
-        }
-
-
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Spinner spin = findViewById(R.id.best_word_spinner);
-//                ArrayAdapter<String> adapter = new ArrayAdapter<String>(, android.R.layout.simple_spinner_dropdown_item, bestWordList);
-//
-//            }
-//        });
     }
 
     public void displayWord(final String text) {

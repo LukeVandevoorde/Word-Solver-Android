@@ -1,25 +1,36 @@
 package lukev.wordsolver;
 
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.FileObserver;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
 
-public class ScreenShotObserver extends FileObserver {
+public class ScreenShotObserver extends ContentObserver {
 
     private static final String screenshotPath = Environment.getExternalStorageDirectory()
             + File.separator + Environment.DIRECTORY_PICTURES
             + File.separator + "Screenshots" + File.separator;
 
-    public ScreenShotObserver() {
-        super(screenshotPath);
+    public ScreenShotObserver(Handler handler) {
+        super(handler);
 
-        Log.d("Screenshot path", screenshotPath);
+        Log.i("Screenshot path", screenshotPath);
     }
 
-    public void onEvent(int event, String path) {
-        Log.d("SCREENSHOT FOUND?!", "################################################### Path: " + path);
+    @Override
+    public void onChange(boolean selfChange) {
+        super.onChange(selfChange);
+        Log.i("DETECTED SCREENSHOT", "#####################");
+    }
+
+    @Override
+    public void onChange(boolean selfChange, Uri uri) {
+        super.onChange(selfChange, uri);
+        Log.i("DETECTED SCREENSHOT", "#### URI: " + uri);
     }
 }

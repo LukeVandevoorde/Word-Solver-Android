@@ -111,27 +111,29 @@ public class BoardImageParser {
 
                                 // Determine if the letter has the default point value, or not score if it is a wildcard tile
 
-                                boolean defaultScore = false;
-
-                                scoreSearchLoop: for (int i = 7; i < 20; i++) {
-                                    for (int j = 52; j < 62; j++) {
-                                        if (isScoreDigitColor(allPixels[screenIndex(xpos+j, ypos+i)])) {
-                                            defaultScore = true;
-                                            break scoreSearchLoop;
-                                        }
-                                    }
-                                }
-
-//                                if (!defaultScore) {
-//                                    Log.i("Board Parse", "Found wildcard letter at (" + xpos + ", " + ypos + ")");
-//                                }
-
                                 if (matched) {
 //                                    boardGrid[letterY][letterX] = defaultScore ? new Letter(letterX, letterY, (char) ('a' + letter)) : new Letter(letterX, letterY, (char) ('a' + letter), 0);
                                     boardGrid[letterX][letterY] = new Letter(letterX, letterY, (char) ('a' + letter));
                                     break letterLoop;
                                 }
                             }
+
+                            boolean defaultScore = false;
+
+                            scoreSearchLoop: for (int i = 10; i <= 15; i++) {
+                                for (int j = 55; j < 60; j++) {
+                                    if (isScoreDigitColor(allPixels[screenIndex(xpos+j, ypos+i)])) {
+                                        defaultScore = true;
+//                                            Log.i("Board Parse", "NOTICE ################# NOTICE #########NOTICE##### NOTICE ##### NOTICE Found defaultscore letter at (" + letterX + ", " + letterY + ")");
+                                        break scoreSearchLoop;
+                                    }
+                                }
+                            }
+//
+                            if (!defaultScore) {
+                                Log.i("Board Parse", "NOTICE ################# NOTICE #########NOTICE##### NOTICE ##### NOTICE Found wildcard letter at (" + letterX + ", " + letterY + ")");
+                            }
+
                             x += LETTER_DISTANCE;
 
                             int progress = (int) (100.0 * (letterY*15 + letterX)/(15.0*15.0));
@@ -208,16 +210,16 @@ public class BoardImageParser {
         }).start();
     }
 
-    // If a brown pixel or a white pixel as would be in the most recently played word
+    // If a ~brown pixel a white pixel (as would be in the most recently played word)
     private boolean pixelIsLetterMaterial (int pixel) {
         return Color.red(pixel) > 245 && Color.blue(pixel) > 245 || brownColorApproximateMatch(pixel);// || Color.red(pixel) == 69 && Color.green(pixel) == 31 && Color.blue(pixel) == 18;
     }
 
     private boolean brownColorApproximateMatch(int pixel) {
-        return (Color.red(pixel) > 64 && Color.red(pixel) < 73 && Color.green(pixel) > 26 && Color.green(pixel) < 34 && Color.blue(pixel) > 14 && Color.blue(pixel) < 23);
+        return (Color.red(pixel) > 60 && Color.red(pixel) < 80 && Color.green(pixel) > 20 && Color.green(pixel) < 40 && Color.blue(pixel) >= 0 && Color.blue(pixel) < 25);
     }
 
     private boolean isScoreDigitColor(int color) {
-        return Color.red(color) >= 68 && Color.red(color) < 142 && Color.green(color) > 30 && Color.green(color) < 90 && Color.blue(color) > 18 && Color.blue(color) < 45;
+        return Color.red(color) > 50 && Color.red(color) < 142 && Color.green(color) > 20 && Color.green(color) < 90 && Color.blue(color) >= 0 && Color.blue(color) < 45;
     }
 }

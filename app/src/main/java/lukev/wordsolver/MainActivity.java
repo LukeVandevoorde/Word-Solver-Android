@@ -29,7 +29,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import client.WSClientUploader;
 import solver.Board;
 import solver.Letter;
 import solver.StringTools;
@@ -53,15 +52,6 @@ public class MainActivity extends AppCompatActivity {
                 + File.separator + "Screenshots" + File.separator;
         Log.i("Screenshot path", path);
 
-        screenShotObserver = new FileObserver(path, FileObserver.CREATE) {
-            @Override
-            public void onEvent(int event, String path) {
-                Log.i("Event Fired", event + "############################## " + path);
-            }
-        };
-
-        screenShotObserver.startWatching();
-
 
 //        Log.i("Picture Directory", Environment.DIRECTORY_DCIM);
 //
@@ -82,38 +72,6 @@ public class MainActivity extends AppCompatActivity {
         }).start();
 
         solveThread = null;
-    }
-
-    public void requestWord(View v) {
-        if (requestThread == null || !requestThread.isAlive()) {
-            final EditText letterEditText = findViewById(R.id.available_letters);
-            final String letters = letterEditText.getText().toString().toLowerCase();
-
-            requestThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-
-                    Log.i("WS", "Attempting to connect");
-                    try (
-//                            Socket server = new Socket("192.168.1.130", 7);
-//                            Socket server = new Socket ("c-67-164-99-119.hsd1.ca.comcast.net", 7);
-                            Socket server = new Socket("67.164.99.119", 6000);
-                            WSClientUploader clientUploader = new WSClientUploader(server);
-                    ) {
-                        Log.i("WS", "Connected");
-                        Word bestWord = clientUploader.requestBestWords(boardToSolve, letters)[0];
-                        displayWord(bestWord.word() + ", " + bestWord.score());
-                        displayBoard(boardToSolve, bestWord);
-                    } catch (UnknownHostException e) {
-                        Log.i("WS", Log.getStackTraceString(e));
-                    } catch (IOException e) {
-                        displayWord("Failed to get word from server");
-                        Log.i("WS", Log.getStackTraceString(e));
-                    }
-                }});
-
-            requestThread.start();
-        }
     }
 
     public void solveWord(View v) {
